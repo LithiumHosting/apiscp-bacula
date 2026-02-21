@@ -157,6 +157,56 @@ cpcmd rampart:whitelist 61.2.12.11
 
 That's it! A new backup task is now available.
 
+## Semi-Automatic Installation on Rocky Linux 10
+
+## 1. Install RPM build tools
+
+```bash
+dnf install -y rpm-build rpmdevtools git
+```
+
+### 2. Clone the repository
+
+```bash
+git clone https://github.com/apisnetworks/apiscp-bacula.git
+cd apiscp-bacula
+```
+
+### 3. Build the RPM
+
+```bash
+REPO_DIR="$(pwd)"
+
+rpmbuild -bb apnscp-bacula.spec \
+  --define "_sourcedir ${REPO_DIR}" \
+  --define "apnscp_root /usr/local/apnscp" \
+  --define "_topdir ${REPO_DIR}/rpmbuild"
+```
+
+### 4. Install the RPM
+
+```bash
+dnf install -y rpmbuild/RPMS/noarch/apnscp-bacula-*.noarch.rpm
+```
+
+### 5. Run the ApisCP addin
+
+```bash
+cd /usr/local/apnscp/resources/playbooks
+
+ansible-playbook addin.yml --extra-vars=addin=bacula-setup
+```
+
+### 6. Verify configuration
+
+```bash
+ls -l /etc/bacula/*apnscp.conf
+```
+
+```bash
+bconsole -c /etc/bacula/bconsole.conf -n <<<'status dir'
+```
+
 ## Manual installation
 
 Refer to steps above unless specified below.
